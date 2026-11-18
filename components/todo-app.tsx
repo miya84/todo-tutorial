@@ -19,9 +19,12 @@ const FILTERS: { value: Filter; label: string }[] = [
 ]
 
 export function TodoApp() {
-  const { todos, addTodo, toggleTodo, deleteTodo, editTodo } = useTodos()
+  const { todos, addTodo, toggleTodo, deleteTodo, editTodo, clearCompleted } =
+    useTodos()
   const [draft, setDraft] = useState("")
   const [filter, setFilter] = useState<Filter>("all")
+
+  const hasCompleted = todos.some((todo) => todo.completed)
 
   const visibleTodos = todos.filter((todo) =>
     filter === "all"
@@ -52,15 +55,22 @@ export function TodoApp() {
         aria-label="새 할 일"
         autoFocus
       />
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-        <TabsList aria-label="필터">
-          {FILTERS.map(({ value, label }) => (
-            <TabsTrigger key={value} value={value}>
-              {label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      <div className="flex items-center justify-between gap-2">
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
+          <TabsList aria-label="필터">
+            {FILTERS.map(({ value, label }) => (
+              <TabsTrigger key={value} value={value}>
+                {label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+        {hasCompleted && (
+          <Button variant="ghost" size="sm" onClick={clearCompleted}>
+            완료 항목 지우기
+          </Button>
+        )}
+      </div>
       {visibleTodos.length === 0 ? (
         <p className="py-6 text-center text-sm text-muted-foreground">
           {todos.length === 0
