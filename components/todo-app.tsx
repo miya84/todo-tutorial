@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { Trash2Icon } from "lucide-react"
+import { PencilIcon, Trash2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -34,6 +34,12 @@ export function TodoApp() {
         : todo.completed
   )
 
+  // 되돌릴 수 없으므로 지우기 전에 한 번 확인한다
+  const handleClearCompleted = () => {
+    const count = todos.filter((todo) => todo.completed).length
+    if (window.confirm(`완료한 할 일 ${count}개를 지울까요?`)) clearCompleted()
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // 한글 조합 중 Enter는 무시 (중복 추가 방지)
     if (e.key !== "Enter" || e.nativeEvent.isComposing) return
@@ -51,7 +57,9 @@ export function TodoApp() {
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="할 일을 입력하고 Enter"
+        placeholder="할 일을 입력하고 Enter…"
+        name="todo"
+        autoComplete="off"
         aria-label="새 할 일"
         autoFocus
       />
@@ -66,7 +74,7 @@ export function TodoApp() {
           </TabsList>
         </Tabs>
         {hasCompleted && (
-          <Button variant="ghost" size="sm" onClick={clearCompleted}>
+          <Button variant="ghost" size="sm" onClick={handleClearCompleted}>
             완료 항목 지우기
           </Button>
         )}
@@ -148,6 +156,8 @@ function TodoItem({
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           onBlur={commit}
+          name="todo-edit"
+          autoComplete="off"
           aria-label="할 일 수정"
           autoFocus
           className="h-8 flex-1"
@@ -162,6 +172,17 @@ function TodoItem({
         >
           {todo.text}
         </span>
+      )}
+      {!editing && (
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={startEdit}
+          aria-label={`${todo.text} 수정`}
+          className="text-muted-foreground"
+        >
+          <PencilIcon />
+        </Button>
       )}
       <Button
         variant="ghost"
