@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { Trash2Icon } from "lucide-react"
+import { ClipboardListIcon, Trash2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -25,6 +25,7 @@ export function TodoApp() {
   const [filter, setFilter] = useState<Filter>("all")
 
   const hasCompleted = todos.some((todo) => todo.completed)
+  const activeCount = todos.filter((todo) => !todo.completed).length
 
   const visibleTodos = todos.filter((todo) =>
     filter === "all"
@@ -46,7 +47,7 @@ export function TodoApp() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <Input
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
@@ -54,6 +55,7 @@ export function TodoApp() {
         placeholder="할 일을 입력하고 Enter"
         aria-label="새 할 일"
         autoFocus
+        className="h-11 px-4 text-base shadow-sm md:text-sm"
       />
       <div className="flex items-center justify-between gap-2">
         <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
@@ -72,13 +74,19 @@ export function TodoApp() {
         )}
       </div>
       {visibleTodos.length === 0 ? (
-        <p className="py-6 text-center text-sm text-muted-foreground">
-          {todos.length === 0
-            ? "할 일이 없습니다"
-            : "해당하는 할 일이 없습니다"}
-        </p>
+        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed py-12 text-center text-muted-foreground">
+          <ClipboardListIcon className="size-8 opacity-60" />
+          <p className="text-sm font-medium">
+            {todos.length === 0
+              ? "할 일이 없습니다"
+              : "해당하는 할 일이 없습니다"}
+          </p>
+          {todos.length === 0 && (
+            <p className="text-xs">위 입력창에 첫 할 일을 추가해 보세요</p>
+          )}
+        </div>
       ) : (
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col divide-y overflow-hidden rounded-xl border bg-card shadow-sm">
           {visibleTodos.map((todo) => (
             <TodoItem
               key={todo.id}
@@ -89,6 +97,11 @@ export function TodoApp() {
             />
           ))}
         </ul>
+      )}
+      {todos.length > 0 && (
+        <p className="px-1 text-xs text-muted-foreground">
+          남은 할 일 {activeCount}개 · 전체 {todos.length}개
+        </p>
       )}
     </div>
   )
@@ -136,7 +149,7 @@ function TodoItem({
   }
 
   return (
-    <li className="group flex min-h-11 items-center gap-3 rounded-lg px-2 hover:bg-muted/50">
+    <li className="group flex min-h-12 items-center gap-3 px-4 transition-colors hover:bg-muted/50">
       <Checkbox
         checked={todo.completed}
         onCheckedChange={onToggle}
